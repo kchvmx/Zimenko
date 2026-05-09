@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIMENKO DESIGN STUDIO</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* TOKENS & GLOBALS */
+        :root {
+            --black: #050505;
+            --dark: #0D0C0A;
+            --mid: #1A1915;
+            --champagne: #C9A96E;
+            --champDim: rgba(201, 169, 110, 0.15);
+            --champLine: rgba(201, 169, 110, 0.2);
+            --white: #F5F2EC;
+            --muted: #8A8478;
+            --line: rgba(245, 242, 236, 0.07);
+            --fb-link: "https://www.facebook.com/YuriyZimenko/";
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Jost', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        @media (pointer: fine) { body { cursor: none; } }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: var(--black); }
+        ::-webkit-scrollbar-thumb { background: var(--champagne); }
+
+        /* NOISE EFFECT */
+        .noise::after {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 8000;
+            opacity: .022;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* CUSTOM CURSOR */
+        .cur-dot {
+            position: fixed; width: 7px; height: 7px; border-radius: 50%;
+            background: var(--champagne); pointer-events: none; z-index: 9999;
+            transform: translate(-50%, -50%); transition: opacity .2s;
+        }
+        .cur-ring {
+            position: fixed; width: 38px; height: 38px; border-radius: 50%;
+            border: 1px solid var(--champLine); pointer-events: none; z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width .4s cubic-bezier(.16, 1, .3, 1), height .4s cubic-bezier(.16, 1, .3, 1), opacity .3s;
+        }
+        .cur-ring.hov { width: 54px; height: 54px; opacity: .55; }
+        @media (pointer: coarse) { .cur-dot, .cur-ring { display: none; } }
+
+        /* REVEAL ANIMATION */
+        .rv { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.16, 1, .3, 1), transform 1s cubic-bezier(.16, 1, .3, 1); }
+        .rv.on { opacity: 1; transform: none; }
+
+        /* NAVIGATION */
+        .z-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 26px 60px; transition: all .4s cubic-bezier(.16, 1, .3, 1);
+            border-bottom: 1px solid transparent;
+        }
+        .z-nav.scrolled { padding: 16px 60px; background: rgba(5, 5, 5, 0.93); backdrop-filter: blur(24px); border-bottom-color: var(--line); }
+        .z-nav.hidden { transform: translateY(-100%); }
+        @media (max-width: 767px) { .z-nav { padding: 18px 20px; } .z-nav.scrolled { padding: 18px 20px; } }
+
+        .logo { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo-circle {
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--champLine);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .logo-text-main { font-family: 'Cormorant Garamond', serif; font-size: 15px; letter-spacing: 0.2em; color: var(--white); }
+        .logo-text-sub { font-family: 'Jost', sans-serif; font-size: 8px; letter-spacing: 0.35em; color: var(--muted); text-transform: uppercase; }
+
+        .nav-links { display: flex; gap: 36px; list-style: none; }
+        .nav-links a {
+            font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.26em;
+            text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .3s;
+        }
+        .nav-links a:hover { color: var(--champagne); }
+
+        .btn-cta {
+            font-family: 'Jost', sans-serif; font-size: 10px; letter-spacing: 0.26em;
+            text-transform: uppercase; color: var(--champagne); border: 1px solid var(--champLine);
+            padding: 10px 22px; text-decoration: none; transition: all .35s;
+        }
+        .btn-cta:hover { background: var(--champagne); color: var(--black); }
+
+        /* MOBILE MENU */
+        .burger { background: none; border: none; cursor: pointer; display: none; flex-direction: column; gap: 5px; }
+        @media (max-width: 767px) { .burger { display: flex; } .nav-links, .btn-cta-desk { display: none; } }
+        .burger span { display: block; width: 24px; height: 1px; background: var(--white); transition: .3s; }
+
+        .mob-overlay {
+            position: fixed; inset: 0; z-index: 590; background: rgba(5, 5, 5, 0.97);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 36px; opacity: 0; pointer-events: none; transition: opacity .45s;
+        }
+        .mob-overlay.open { opacity: 1; pointer-events: all; }
+        .mob-overlay a { font-family: 'Cormorant Garamond', serif; font-size: 42px; color: var(--white); text-decoration: none; }
+
+        /* HERO SECTION */
+        .hero {
+            min-height: 100svh; position: relative; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; background: var(--black); padding: 0 40px; text-align: center;
+        }
+        .hero-glow {
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 70% 50% at 55% 40%, rgba(201,169,110,0.045) 0%, transparent 70%);
+        }
+        .watermark {
+            position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%);
+            font-family: 'Cormorant Garamond', serif; font-size: clamp(80px, 16vw, 220px);
+            font-style: italic; color: rgba(201, 169, 110, 0.025); white-space: nowrap; pointer-events: none;
+        }
+        .hero-h1 {
+            font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 8vw, 112px);
+            font-weight: 300; line-height: 0.93; margin-bottom: 38px; color: var(--white);
+        }
+        .hero-h1 em { color: var(--champagne); font-style: italic; }
+        
+        .hero-p {
+            max-width: 500px; margin: 0 auto 52px; color: var(--muted); font-size: 15px; font-weight: 300; line-height: 1.85;
+        }
+
+        .hero-btns { display: flex; gap: 20px; justify-content: center; }
+        .btn-fill {
+            background: var(--champagne); color: var(--black); padding: 15px 36px;
+            font-size: 11px; letter-spacing: .26em; text-transform: uppercase; text-decoration: none; font-weight: 500;
+        }
+        @media (max-width: 767px) { .hero-btns { flex-direction: column; } }
+
+        /* PROJECTS */
+        .section-padding { padding: 120px 80px; }
+        @media (max-width: 767px) { .section-padding { padding: 80px 24px; } }
+
+        .project-row {
+            border-top: 1px solid var(--line); padding: 36px 0;
+            display: grid; grid-template-columns: 72px 1fr auto; gap: 28px; align-items: center;
+            transition: padding-left .4s; text-decoration: none;
+        }
+        .project-row:hover { padding-left: 12px; }
+        .project-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(22px, 2.8vw, 34px); color: var(--white); transition: .4s; }
+        .project-row:hover .project-title { color: var(--champagne); }
+        
+        .icon-box {
+            width: 64px; height: 64px; background: rgba(201, 169, 110, 0.05); border: 1px solid var(--champLine);
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+        }
+
+        /* UTILS */
+        @keyframes scrollPulse {
+            0% { transform: scaleY(1); opacity: .8; }
+            50% { transform: scaleY(.5); opacity: .3; }
+            100% { transform: scaleY(1); opacity: .8; }
+        }
+        .scroll-cue {
+            position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+        }
+        .scroll-line { width: 1px; height: 44px; background: linear-gradient(to bottom, var(--champagne), transparent); animation: scrollPulse 2s infinite; }
+    </style>
+</head>
+<body class="noise">
+
+    <div class="cur-dot" id="cursorDot"></div>
+    <div class="cur-ring" id="cursorRing"></div>
+
+    <nav class="z-nav" id="mainNav">
+        <a href="#top" class="logo">
+            <div class="logo-circle">
+                <span style="font-family:'Cormorant Garamond',serif; font-size:11px; color:var(--champagne)">YZ</span>
+            </div>
+            <div class="logo-text-wrapper">
+                <div class="logo-text-main">ZIMENKO</div>
+                <div class="logo-text-sub">DESIGN STUDIO</div>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="#projects">Проєкти</a></li>
+            <li><a href="#services">Послуги</a></li>
+            <li><a href="#studio">Студія</a></li>
+            <li><a href="#contact">Контакти</a></li>
+        </ul>
+
+        <a href="https://www.facebook.com/YuriyZimenko/" target="_blank" class="btn-cta btn-cta-desk">Запишіться</a>
+
+        <button class="burger" id="burgerBtn">
+            <span></span>
+            <span style="transform: scaleX(0.7); transform-origin: left;"></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <div class="mob-overlay" id="mobOverlay">
+        <a href="#projects" onclick="toggleMenu()">Проєкти</a>
+        <a href="#services" onclick="toggleMenu()">Послуги</a>
+        <a href="#studio" onclick="toggleMenu()">Студія</a>
+        <a href="https://www.facebook.com/YuriyZimenko/" target="_blank">Запишіться</a>
+    </div>
+
+    <section class="hero" id="top">
+        <div class="hero-glow"></div>
+        <div class="watermark">ZIMENKO</div>
+        
+        <div style="position: relative; z-index: 2; max-width: 860px;">
+            <div class="rv on" style="margin-bottom: 44px; display: flex; align-items: center; justify-content: center; gap: 14px;">
+                <div style="width: 36px; height: 1px; background: var(--champagne); opacity: 0.6;"></div>
+                <span style="font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--champagne);">Студія інтер'єрного дизайну · Київ</span>
+                <div style="width: 36px; height: 1px; background: var(--champagne); opacity: 0.6;"></div>
+            </div>
+
+            <h1 class="hero-h1 rv on" style="transition-delay: 0.2s;">
+                Простір,<br>
+                <em style="color: var(--champagne);">що відображає</em><br>
+                вашу сутність
+            </h1>
+
+            <p class="hero-p rv on" style="transition-delay: 0.4s;">
+                Ми створюємо інтер'єри, які стають продовженням вашої особистості — гармонійне поєднання стилю, функціональності та унікального характеру.
+            </p>
+
+            <div class="hero-btns rv on" style="transition-delay: 0.6s;">
+                <a href="#projects" class="btn-fill">Переглянути проєкти</a>
+                <a href="https://www.facebook.com/YuriyZimenko/" target="_blank" class="btn-cta" style="padding: 14px 36px;">Запишіться на консультацію</a>
+            </div>
+        </div>
+
+        <div class="scroll-cue">
+            <span style="font-size: 8px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted);">Гортати</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <section class="section-padding" style="background: var(--dark); display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <div class="rv" style="font-family: 'Cormorant Garamond', serif; font-size: 10px; letter-spacing: 0.38em; text-transform: uppercase; color: var(--champagne); margin-bottom: 40px;">
+            Маніфест студії
+        </div>
+        <p class="rv" style="font-family: 'Cormorant Garamond', serif; font-size: clamp(22px, 3vw, 38px); max-width: 900px; line-height: 1.45;">
+            "Ми створюємо інтер'єри, які стають продовженням вашої особистості. Кожен наш проєкт — це гармонійне поєднання стилю та унікального характеру."
+        </p>
+    </section>
+
+    <section id="projects" class="section-padding">
+        <div style="margin-bottom: 64px; border-bottom: 1px solid var(--line); padding-bottom: 40px;">
+            <div class="rv" style="font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--champagne); margin-bottom: 14px;">
+                Вибрані роботи
+            </div>
+            <h2 class="rv" style="font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 5vw, 66px); font-weight: 300; color: var(--white);">
+                Наші <em style="color: var(--champagne);">проєкти</em>
+            </h2>
+        </div>
+
+        <div class="project-list">
+            <a href="https://www.facebook.com/YuriyZimenko/" class="project-row rv">
+                <div style="font-family: 'Cormorant Garamond', serif; color: var(--muted); font-style: italic;">01</div>
+                <div>
+                    <div class="project-title">Apartment — Kyiv</div>
+                    <div style="font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.2em;">Класичний люкс · 180 м²</div>
+                </div>
+                <div class="icon-box">🏛</div>
+            </a>
+            <a href="https://www.facebook.com/YuriyZimenko/" class="project-row rv">
+                <div style="font-family: 'Cormorant Garamond', serif; color: var(--muted); font-style: italic;">02</div>
+                <div>
+                    <div class="project-title">Penthouse — Kyiv</div>
+                    <div style="font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.2em;">Сучасна класика · 320 м²</div>
+                </div>
+                <div class="icon-box">🌆</div>
+            </a>
+        </div>
+
+        <div class="rv" style="text-align: center; margin-top: 64px;">
+            <a href="https://www.facebook.com/YuriyZimenko/" target="_blank" style="color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--champLine); padding-bottom: 4px; text-transform: uppercase; font-size: 10px; letter-spacing: 0.2em;">
+                Обговорити ваш проєкт →
+            </a>
+        </div>
+    </section>
+
+    <footer id="contact" class="section-padding" style="background: var(--mid); text-align: center;">
+        <h2 class="rv" style="font-family: 'Cormorant Garamond', serif; font-size: 42px; margin-bottom: 24px;">Готові почати?</h2>
+        <a href="https://www.facebook.com/YuriyZimenko/" target="_blank" class="btn-fill rv" style="display: inline-block;">Запишіться на консультацію у Facebook</a>
+        <div style="margin-top: 60px; font-size: 12px; color: var(--muted); letter-spacing: 0.1em;">
+            © 2026 ZIMENKO DESIGN STUDIO. Усі права захищені.
+        </div>
+    </footer>
+
+    <script>
+        // Custom Cursor Logic
+        const dot = document.getElementById('cursorDot');
+        const ring = document.getElementById('cursorRing');
+        let mouseX = -100, mouseY = -100;
+        let ringX = -100, ringY = -100;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            dot.style.left = mouseX + 'px';
+            dot.style.top = mouseY + 'px';
+        });
+
+        function animateRing() {
+            ringX += (mouseX - ringX) * 0.1;
+            ringY += (mouseY - ringY) * 0.1;
+            ring.style.left = ringX + 'px';
+            ring.style.top = ringY + 'px';
+            requestAnimationFrame(animateRing);
+        }
+        animateRing();
+
+        // Hover Effect for Cursor
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => ring.classList.add('hov'));
+            el.addEventListener('mouseleave', () => ring.classList.remove('hov'));
+        });
+
+        // Scroll Logic (Nav transparency & hide)
+        const nav = document.getElementById('mainNav');
+        let lastScrollY = window.scrollY;
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+
+            if (window.scrollY > lastScrollY && window.scrollY > 300) {
+                nav.classList.add('hidden');
+            } else {
+                nav.classList.remove('hidden');
+            }
+            lastScrollY = window.scrollY;
+        });
+
+        // Intersection Observer for Reveal
+        const observerOptions = { threshold: 0.1 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('on');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.rv').forEach(el => observer.observe(el));
+
+        // Mobile Menu Toggle
+        const burger = document.getElementById('burgerBtn');
+        const overlay = document.getElementById('mobOverlay');
+        function toggleMenu() {
+            overlay.classList.toggle('open');
+            document.body.style.overflow = overlay.classList.contains('open') ? 'hidden' : '';
+        }
+        burger.addEventListener('click', toggleMenu);
+    </script>
+</body>
+</html>
